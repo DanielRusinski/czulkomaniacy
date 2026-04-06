@@ -1,0 +1,31 @@
+{
+  "bossQuestions": [
+    {
+      "id": "b1",
+      "question": "Który gaz jest głównym czynnikiem wywołującym efekt cieplarniany?",
+      "options": ["Tlen", "Metan", "Dwutlenek węgla", "Azot"],
+      "answer": "Dwutlenek węgla",
+      "points": [5,-5],
+      "life": [1,-1],
+      "movement_impact": [1,0]
+    },
+    {
+      "id": "b2",
+      "question": "Ile lat może rozkładać się plastikowa butelka w środowisku naturalnym?",
+      "options": ["do 100 lat", "do 450 lat", "do 1000 lat", "Nigdy"],
+      "answer": "do 450 lat",
+      "points": [5,-5],
+      "life": [1,-1],
+      "movement_impact": [1,0]
+    },
+    {
+      "id": "b3",
+      "question": "Który ekosystem produkuje najwięcej tlenu na Ziemi?",
+      "options": ["Lasy deszczowe", "Oceany (fitoplankton)", "Tajga", "Łąki"],
+      "answer": "Oceany (fitoplankton)",
+      "points": [5,-5],
+      "life": [1,-1],
+      "movement_impact": [1,0]
+    }
+  ]
+}

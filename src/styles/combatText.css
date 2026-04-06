@@ -1,0 +1,68 @@
+:root {
+  --drop-duration: 440ms;
+  --hold-time: 1800ms;
+  --fade-duration: 640ms;
+}
+
+.combat-text-container {
+  pointer-events: none;
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 52px;
+  white-space: nowrap;
+  
+  /* Cień z oryginalnego skryptu */
+  text-shadow:
+    0 0 4px rgba(0,0,0,0.8),
+    0 0 10px rgba(0,0,0,0.6),
+    0 0 18px rgba(0,0,0,0.4);
+
+  /* Główne animacje dla całego kontenera (Bounce i FadeOut) */
+  animation: 
+    textBounce 600ms ease-out calc(var(--drop-duration) + 150ms),
+    fadeOutGlow var(--fade-duration) ease-out calc(var(--drop-duration) + var(--hold-time)) forwards;
+}
+
+.combat-text {
+  display: inline-block;
+}
+
+.combat-text .char {
+  display: inline-block;
+  opacity: 0;
+  /* Indywidualne spadanie liter */
+  animation: letterDrop var(--drop-duration) cubic-bezier(0.2, 0.8, 0.25, 1.05) forwards;
+  animation-delay: calc(var(--char-index) * 55ms);
+}
+
+@keyframes letterDrop {
+  0%   { transform: translateY(-160px); opacity: 0; }
+  40%  { transform: translateY(10px);  opacity: 1; }
+  65%  { transform: translateY(-4px); }
+  100% { transform: translateY(0);     opacity: 1; }
+}
+
+@keyframes textBounce {
+  0%   { transform: translate(0, 0) scale(1); }
+  40%  { transform: translate(0, -15px) scale(1.15); }
+  70%  { transform: translate(0, -5px)  scale(1.05); }
+  100% { transform: translate(0, 0)     scale(1); }
+}
+
+@keyframes fadeOutGlow {
+  0% {
+    opacity: 1;
+    filter: brightness(1);
+    transform: translateY(0);
+  }
+  35% {
+    opacity: 1;
+    filter: brightness(2.5);
+  }
+  100% {
+    opacity: 0;
+    filter: brightness(1.5);
+    transform: translateY(-50px); /* Delikatnie ulatuje do góry przy zanikaniu */
+  }
+}

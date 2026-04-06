@@ -1,0 +1,288 @@
+/* src/styles/bubblegum.css */
+
+:root {
+  /* Paleta Pastelowa - Bubblegum */
+  --bg-color: #fdfcf0;          /* Bardzo jasny kremowy */
+  --primary-pink: #ffc1cc;      /* Klasyczny róż bubblegum */
+  --primary-blue: #a2d2ff;      /* Pastelowy błękit (Jezioro) */
+  --primary-green: #b9fbc0;     /* Pastelowa miętowa zieleń (Las/Łąka) */
+  --primary-yellow: #fbf8cc;    /* Pastelowy żółty (Słońce/Bonusy) */
+  --primary-purple: #cfbaf0;    /* Pastelowy fiolet (Góry) */
+  
+  /* Detale */
+  --text-color: #5d5d5d;        /* Miękki szary zamiast czystej czerni */
+  --white: #ffffff;
+  --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.05);
+  --shadow-modular: 4px 4px 0px rgba(0, 0, 0, 0.02); /* Efekt 3D dla modułów */
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Kontener Planszy */
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 12px;
+  padding: 20px;
+  background: var(--white);
+  border-radius: 40px;
+  box-shadow: var(--shadow-soft);
+  border: 8px solid var(--white);
+}
+
+/* Stylizacja Modułów (Pól) */
+.module {
+  aspect-ratio: 1 / 1;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  position: relative;
+  border-bottom: 5px solid rgba(0,0,0,0.1); /* Podbicie 3D */
+}
+
+.module:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Klasy Kolorystyczne dla Stref */
+.meadow { background-color: var(--primary-green); }
+.forest { background-color: #98f5a6; } /* Nieco ciemniejsza miętowa */
+.mountains { background-color: var(--primary-purple); }
+.lake { background-color: var(--primary-blue); }
+.special { background-color: var(--primary-pink); }
+.start-meta { background-color: var(--primary-yellow); font-weight: bold; }
+
+/* Pionek Gracza */
+.player-token {
+  width: 30px;
+  height: 30px;
+  background-color: var(--white);
+  border-radius: 50%;
+  border: 4px solid var(--primary-pink);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  position: absolute;
+  z-index: 10;
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* UI - Karty i Przyciski */
+.ui-button {
+  background-color: var(--white);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 20px;
+  color: var(--text-color);
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ui-button:active {
+  transform: scale(0.95);
+}
+
+.ui-button.primary {
+  background-color: var(--primary-pink);
+  color: white;
+}
+
+/* Nakładka na tło */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+/* Karta pytania */
+.modal-content {
+  background: var(--white);
+  padding: 40px;
+  border-radius: 40px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: var(--shadow-soft);
+  text-align: center;
+  border: 10px solid var(--white);
+}
+
+/* Dynamiczne kolory obramowania w zależności od kategorii */
+.modal-content.meadow { border-color: var(--primary-green); }
+.modal-content.forest { border-color: #98f5a6; }
+.modal-content.mountains { border-color: var(--primary-purple); }
+.modal-content.lake { border-color: var(--primary-blue); }
+
+/* Siatka odpowiedzi */
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin: 25px 0;
+}
+
+.option-button {
+  background: var(--bg-color);
+  border: 4px solid var(--white);
+  padding: 15px;
+  border-radius: 20px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: var(--shadow-modular);
+}
+
+.option-button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  background: var(--white);
+  border-color: var(--primary-pink);
+}
+
+/* Kolory po sprawdzeniu */
+.option-button.correct-opt {
+  background-color: var(--primary-green) !important;
+  border-color: #ffffff;
+  color: #1a5c20;
+}
+
+.option-button.wrong-opt {
+  background-color: var(--primary-pink) !important;
+  border-color: #ffffff;
+  color: #7a1a2a;
+}
+
+.option-button.disabled-opt {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.feedback-msg {
+  font-weight: 800;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.badge {
+  background: var(--bg-color);
+  padding: 5px 15px;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+/* Główne kontenery */
+.app-container {
+  display: flex;
+  gap: 40px;
+  max-width: 1200px;
+  width: 95%;
+  align-items: flex-start;
+}
+
+.sidebar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.game-title {
+  font-size: 2.5rem;
+  color: var(--primary-pink);
+  text-shadow: 2px 2px 0px var(--white);
+  margin-bottom: 20px;
+}
+
+.player-card {
+  background: var(--white);
+  padding: 20px;
+  border-radius: 25px;
+  transition: all 0.3s;
+  opacity: 0.7;
+}
+
+.player-card.active {
+  opacity: 1;
+  transform: scale(1.05);
+  border: 3px solid var(--primary-pink);
+}
+
+.ecosystem-tracker {
+  display: flex;
+  gap: 10px;
+  font-size: 1.5rem;
+  margin-top: 10px;
+}
+
+.eco-icon { opacity: 0.2; filter: grayscale(1); transition: 0.3s; }
+.eco-icon.active { opacity: 1; filter: grayscale(0); }
+
+.roll-btn {
+  width: 100%;
+  font-size: 1.2rem;
+  background: var(--primary-yellow);
+}
+
+/* Logi walki / dziennik */
+.battle-log {
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  padding: 15px;
+  margin-top: 20px;
+  border: 2px dashed var(--primary-pink);
+  min-height: 150px;
+}
+
+.battle-log h4 {
+  margin-top: 0;
+  color: var(--text-color);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.log-entries {
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.log-current {
+  color: #d147a3;
+  font-weight: 800;
+  margin-bottom: 8px;
+  animation: fadeIn 0.5s ease-in;
+}
+
+.log-old {
+  color: #a0a0a0;
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}

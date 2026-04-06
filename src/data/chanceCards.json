@@ -1,0 +1,94 @@
+{
+  "chanceCards": [
+    {
+      "id": 1,
+      "title": "Mikstura Życia",
+      "description": "Znalazłeś lecznicze jagody! Odzyskujesz 1 punkt życia.",
+      "icon": "🧪",
+      "points": 0,
+      "life": 1,
+      "movement_impact": 0
+    },
+    {
+      "id": 2,
+      "title": "Zasypany Szlak",
+      "description": "Lawina kamieni blokuje drogę. Tracisz następną kolejkę.",
+      "icon": "🚧",
+      "points": 0,
+      "life": 0,
+      "movement_impact": -1
+    },
+    {
+      "id": 3,
+      "title": "Skarb Natury",
+      "description": "Znalazłeś porzucony mieszek pełen złotych monet. +5 punktów!",
+      "icon": "💰",
+      "points": 5,
+      "life": 0,
+      "movement_impact": 0
+    },
+    {
+      "id": 4,
+      "title": "Złodziejaszek",
+      "description": "Sprytna sroka ukradła Twoje błyskotki. -3 punkty!",
+      "icon": "👤",
+      "points": -3,
+      "life": 0,
+      "movement_impact": -1
+    },
+    {
+      "id": 5,
+      "title": "Pomyślny Wiatr",
+      "description": "Silny wiatr wieje Ci w plecy. Masz dodatkowy rzut kostka!",
+      "icon": "🌬️",
+      "points": 0,
+      "life": 0,
+      "movement_impact": 1
+    },
+    {
+      "id": 6,
+      "title": "Zasłużony Odpoczynek",
+      "description": "Znalazłeś bezpieczne schronienie. Odzyskujesz 1 punkt życia.",
+      "icon": "🏠",
+      "points": 0,
+      "life": 1,
+      "movement_impact": 0
+    },
+    {
+      "id": 7,
+      "title": "Gęsta Mgła",
+      "description": "Nic nie widzisz! Musisz przeczekać mgłę. Tracisz kolejkę.",
+      "icon": "🌫️",
+      "points": 0,
+      "life": 0,
+      "movement_impact": -1
+    },
+    {
+      "id": 8,
+      "title": "Ekologiczna Nagroda",
+      "description": "Zasłużyłeś na premię za dbanie o las. +3 punkty!",
+      "icon": "⭐",
+      "points": 3,
+      "life": 0,
+      "movement_impact": 0
+    },
+    {
+      "id": 9,
+      "title": "Wilczy Dół",
+      "description": "Wpadłeś w pułapkę kłusownika. Tracisz 1 punkt życia!",
+      "icon": "🕳️",
+      "points": 0,
+      "life": -1,
+      "movement_impact": 0
+    },
+    {
+      "id": 10,
+      "title": "Skrót przez Jaskinię",
+      "description": "Znasz te góry! Masz dodatkowy rzut kostka!.",
+      "icon": "⛰️",
+      "points": 0,
+      "life": 0,
+      "movement_impact": 1
+    }
+  ]
+}
