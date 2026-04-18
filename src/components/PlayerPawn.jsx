@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { audioManager } from '../logic/audioManager';
 import { gameState } from '../logic/gameState';
-import { MATERIAL_PROPS } from '../config/materialsConfig';
+import { MATERIAL_PROPS } from '../config/materialsConfig_ss';
 
 // ==========================================
 // KONFIGURACJA FIZYKI I ANIMACJI
@@ -135,6 +135,14 @@ const PlayerPawn = ({ player, mapPath, stackIndex = 0, onMovementEnd }) => {
         const finalTile = mapPath[targetIndex];
         console.log(`[${playerTag}] 🏁 Ruch zakończony na: ${finalTile?.id}`);
         setMoving(false);
+        
+        // --- WYZWALANIE SHADERA RIPPLE PO ZAKOŃCZENIU RUCHU ---
+        if (finalTile) {
+          window.dispatchEvent(new CustomEvent('tile-movement-ended', { 
+            detail: { tileId: finalTile.id } 
+          }));
+        }
+
         if (onMovementEnd) onMovementEnd(player, finalTile);
       }
       

@@ -1,0 +1,234 @@
+{
+    "layers": [
+        {
+            "name": "Fullscreen",
+            "longitude": 180,
+            "latitude": 0,
+            "width": 144,
+            "height": 72,
+            "rotation": 0,
+            "exposure": 1,
+            "brightness": 0,
+            "contrast": 1,
+            "hidden": false,
+            "blendMode": 1,
+            "projectionMapping": 1,
+            "clipX": 0,
+            "clipY": 0,
+            "mirrorX": false,
+            "mirrorY": false,
+            "opacity": 1,
+            "color": "#ffffff",
+            "textureType": "png",
+            "textureUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+            "alphaTextureUrl": "",
+            "texture": {
+                "value": null,
+                "encoding": 0
+            },
+            "alphaTexture": {
+                "value": null,
+                "encoding": 0
+            },
+            "preview": null,
+            "blurParams": {
+                "x": 10,
+                "y": 10,
+                "enabled": false
+            }
+        },
+        {
+            "name": "gradiant1.exr",
+            "longitude": 181.10769230769233,
+            "latitude": 89.60264900662251,
+            "width": 40,
+            "height": 400,
+            "rotation": 0,
+            "exposure": 0.6,
+            "brightness": 0,
+            "contrast": 1,
+            "hidden": false,
+            "blendMode": 1,
+            "projectionMapping": 0,
+            "clipX": 0,
+            "clipY": 0,
+            "mirrorX": false,
+            "mirrorY": false,
+            "opacity": 1,
+            "color": "#f6ffe4",
+            "textureType": "",
+            "textureUrl": "https://cdn1.hdrmap.com/984843e763327cd874247f558c607850c1e677ba/6540b607-a4e3/rounded.exr",
+            "alphaTextureUrl": "",
+            "texture": {
+                "value": null,
+                "encoding": 0
+            },
+            "alphaTexture": {
+                "value": null,
+                "encoding": 0
+            },
+            "preview": null,
+            "blurParams": {
+                "x": 10,
+                "y": 10,
+                "enabled": false
+            }
+        },
+        {
+            "name": "Softlight.exr",
+            "longitude": 166.43076923076924,
+            "latitude": -85.23178807947019,
+            "width": 20,
+            "height": 20,
+            "rotation": 0,
+            "exposure": 22,
+            "brightness": 0,
+            "contrast": 1,
+            "hidden": false,
+            "blendMode": 4,
+            "projectionMapping": 0,
+            "clipX": 0,
+            "clipY": 0,
+            "mirrorX": false,
+            "mirrorY": false,
+            "opacity": 1,
+            "color": "#3300ff",
+            "textureType": "",
+            "textureUrl": "https://cdn1.hdrmap.com/984843e763327cd874247f558c607850c1e677ba/64ba3ef4-6f2b/Softlight.exr",
+            "alphaTextureUrl": "",
+            "texture": {
+                "value": null,
+                "encoding": 0
+            },
+            "alphaTexture": {
+                "value": null,
+                "encoding": 0
+            },
+            "preview": null,
+            "blurParams": {
+                "x": 10,
+                "y": 10,
+                "enabled": false
+            }
+        },
+        {
+            "name": "Softlight.exr1",
+            "longitude": 268.6153846153846,
+            "latitude": -2.1854304635761537,
+            "width": 20,
+            "height": 20,
+            "rotation": 0,
+            "exposure": 1.2,
+            "brightness": 0,
+            "contrast": 1,
+            "hidden": false,
+            "blendMode": 4,
+            "projectionMapping": 0,
+            "clipX": 0,
+            "clipY": 0,
+            "mirrorX": false,
+            "mirrorY": false,
+            "opacity": 1,
+            "color": "#fea66c",
+            "textureType": "",
+            "textureUrl": "https://cdn1.hdrmap.com/984843e763327cd874247f558c607850c1e677ba/64ba3ef4-6f2b/Softlight.exr",
+            "alphaTextureUrl": "",
+            "texture": {
+                "value": null,
+                "encoding": 0
+            },
+            "alphaTexture": {
+                "value": null,
+                "encoding": 0
+            },
+            "preview": null,
+            "blurParams": {
+                "x": 10,
+                "y": 10,
+                "enabled": false
+            }
+        },
+        {
+            "name": "Softlight.exr11",
+            "longitude": 84.18461538461538,
+            "latitude": -3.3774834437085985,
+            "width": 20,
+            "height": 20,
+            "rotation": 0,
+            "exposure": 1.2,
+            "brightness": 0,
+            "contrast": 1,
+            "hidden": false,
+            "blendMode": 4,
+            "projectionMapping": 0,
+            "clipX": 0,
+            "clipY": 0,
+            "mirrorX": false,
+            "mirrorY": false,
+            "opacity": 1,
+            "color": "#ff8666",
+            "textureType": "",
+            "textureUrl": "https://cdn1.hdrmap.com/984843e763327cd874247f558c607850c1e677ba/64ba3ef4-6f2b/Softlight.exr",
+            "alphaTextureUrl": "",
+            "texture": {
+                "value": null,
+                "encoding": 0
+            },
+            "alphaTexture": {
+                "value": null,
+                "encoding": 0
+            },
+            "preview": null,
+            "blurParams": {
+                "x": 10,
+                "y": 10,
+                "enabled": false
+            }
+        },
+        {
+            "name": "gradiant1.exr1",
+            "longitude": 176.4,
+            "latitude": 62.980132450331126,
+            "width": 40,
+            "height": 400,
+            "rotation": 0,
+            "exposure": 1,
+            "brightness": 0,
+            "contrast": 1,
+            "hidden": false,
+            "blendMode": 1,
+            "projectionMapping": 0,
+            "clipX": 0,
+            "clipY": 0,
+            "mirrorX": false,
+            "mirrorY": false,
+            "opacity": 1,
+            "color": "#f99d3d",
+            "textureType": "",
+            "textureUrl": "https://cdn1.hdrmap.com/984843e763327cd874247f558c607850c1e677ba/6540b607-a4e3/rounded.exr",
+            "alphaTextureUrl": "",
+            "texture": {
+                "value": null,
+                "encoding": 0
+            },
+            "alphaTexture": {
+                "value": null,
+                "encoding": 0
+            },
+            "preview": null,
+            "blurParams": {
+                "x": 10,
+                "y": 10,
+                "enabled": false
+            }
+        }
+    ],
+    "properties": {
+        "brightness": 0,
+        "contrast": 1,
+        "exposure": 1,
+        "rotation": 0,
+        "envMapBackground": true,
+        "fixEnvMapDirection": false
+    }
+}

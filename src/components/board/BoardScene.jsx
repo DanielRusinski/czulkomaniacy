@@ -11,7 +11,6 @@ const BoardScene = ({ mapData, activePlayer, visibleTiles, zoneColor, isBossActi
     // Zmieniono z-10 na z-30, aby być nad warstwą Vignette (z-20)
     <div className="absolute inset-0 z-30">
       <Canvas
-        shadows
         flat
         camera={{ position: [10, 10, 10], fov: 35 }}
         gl={{
@@ -21,17 +20,17 @@ const BoardScene = ({ mapData, activePlayer, visibleTiles, zoneColor, isBossActi
         }}
       >
         <GlobalShadowFix />
-        
+
         <WorldEnvironment activePlayer={activePlayer} mapData={mapData} />
 
-        <WorldContent 
+        <WorldContent
           mapData={mapData}
           activePlayer={activePlayer}
           visibleTiles={visibleTiles}
           zoneColor={zoneColor}
           onPlayerMoveComplete={onPlayerMoveComplete}
           setHoveredTile={setHoveredTile}
-          v={v} 
+          v={v}
         />
 
         <CameraController

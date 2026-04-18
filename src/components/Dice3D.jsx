@@ -17,7 +17,7 @@ const Dice3D = ({ rolling, targetValue, onFinish }) => {
         clearInterval(interval);
         setDisplayValue(targetValue);
         if (onFinish) onFinish();
-      }, 1200);
+      }, 800);
       return () => { clearInterval(interval); clearTimeout(timer); };
     }
   }, [rolling, targetValue, onFinish]);

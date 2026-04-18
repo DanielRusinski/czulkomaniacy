@@ -11,7 +11,7 @@ import GameHUD from './components/ui/GameHUD';
 import ActiveTileHUD from './components/ui/ActiveTileHUD';
 import TurnIndicator from './components/ui/TurnIndicator';
 import ModalsLayer from './components/ModalsLayer';
-import UiTurns from './components/ui/uiTurns';
+import UiTurns from './components/ui/uiTurns_ss';
 
 // Plansza 3D
 import Board3D from './components/Board3D';

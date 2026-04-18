@@ -2,9 +2,10 @@ import React, { Suspense, useMemo } from 'react';
 import { getZoneConfig } from '../../config/environmentConfig';
 import GameLights from '../GameLights';
 import SceneEnvironment from '../SceneEnvironment';
-import GlobalFog from '../GlobalFog';
-import CloudSea from '../CloudSea';
 import SystemUpperCloud from '../SystemUpperCloud';
+
+// --- DODANO: Import managera mgły ---
+import GlobalFog from '../GlobalFog'; // Upewnij się, że ścieżka importu jest poprawna
 
 const WorldEnvironment = ({ activePlayer, mapData }) => {
   if (!mapData) return null;
@@ -25,16 +26,12 @@ const WorldEnvironment = ({ activePlayer, mapData }) => {
         config={zoneConfig.light}
       />
 
+      {/* --- DODANO: Globalna Mgła --- */}
+      <GlobalFog mapPath={mapData.path} />
+
       <Suspense fallback={null}>
         <SceneEnvironment activePlayerId={activePlayer?.id} mapPath={mapData.path} />
         
-        {/* Parametry mgły ze strefy */}
-        <GlobalFog 
-          mapPath={mapData.path} 
-          config={zoneConfig.fog}
-        />
-        
-        <CloudSea mapData={mapData} />
         <SystemUpperCloud 
           mapData={mapData} 
           activePlayer={activePlayer} 

@@ -5,10 +5,10 @@ import * as THREE from 'three';
 
 // --- [1] KONFIGURACJA DUŻYCH MODELI ---
 const MODELS_CONFIG = [
-  { path: '/models/drzewko.glb', basePlane: 0.4, scale: 0.2, instancesNo: 2 },
-  { path: '/models/drzewko.glb', basePlane: 0.4, scale: 0.2, instancesNo: 1 },
-  { path: '/models/drzewko.glb', basePlane: 0.4, scale: 0.2, instancesNo: 2 },
-  { path: '/models/drzewko.glb', basePlane: 0.4, scale: 0.2, instancesNo: 1 }
+  { path: '/models/meadow_L_three01.glb', basePlane: 0.4, scale: 0.2, instancesNo: 0 },
+  { path: '/models/meadow_L_three01.glb', basePlane: 0.4, scale: 0.2, instancesNo: 0 },
+  { path: '/models/meadow_L_three01.glb', basePlane: 0.4, scale: 0.2, instancesNo: 0 },
+  { path: '/models/testTree.glb', basePlane: 0.4, scale: 1.0, instancesNo: 5 }
 ];
 
 const MeadowLargeModels = ({ mapData }) => {

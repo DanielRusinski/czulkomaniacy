@@ -26,12 +26,7 @@ export const useGameLogic = (mapData) => {
 
   const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-  /**
-   * SEKWENCJA KOŃCOWA TURY
-   * Zaktualizowano: Dodano sprawdzenie isGameOver, aby nie ogłaszać nowej tury po zakończeniu gry.
-   */
   const finalizeTurnSequence = async () => {
-    // Jeśli gra się skończyła w międzyczasie, przerywamy sekwencję
     if (gameState.isGameOver) return;
 
     setGamePhase(GAME_PHASES.ANNOUNCING);
@@ -42,7 +37,6 @@ export const useGameLogic = (mapData) => {
     setV(v => v + 1); 
     await wait(1200); 
 
-    // Ponowne sprawdzenie przed wyświetleniem powiadomienia
     if (gameState.isGameOver) return;
 
     setTurnNotification({ 
@@ -56,12 +50,7 @@ export const useGameLogic = (mapData) => {
     setGamePhase(GAME_PHASES.IDLE);
   };
 
-  /**
-   * SPRAWDZENIE LICZNIKA RUCHÓW (Action Economy)
-   * Zaktualizowano: Dodano blokadę kończącą logicę, jeśli gra jest zakończona.
-   */
   const checkTurnEnd = async () => {
-    // KLUCZOWA POPRAWKA: Jeśli gra jest zakończona, nie robimy nic (pozwalamy wyświetlić się GameOverModal)
     if (gameState.isGameOver) {
       setGamePhase(GAME_PHASES.IDLE);
       return;
@@ -78,19 +67,23 @@ export const useGameLogic = (mapData) => {
     }
   };
 
+  /**
+   * AKTUALIZACJA: Obsługa zakończenia rzutu i ruchu z wymuszonym oczekiwaniem
+   */
   const handleDiceComplete = useCallback(async () => {
     setIsDiceRolling(false);
-    await wait(800);
+    await wait(1500);
     setIsViewingDice(false);
     
     setGamePhase(GAME_PHASES.MOVING);
     const maxTiles = mapData.path.length;
     
+    // Pętla ruchu pionka
     for (let i = 0; i < diceResult; i++) {
-      if (gameState.isGameOver) break; // Przerwij ruch, jeśli gra się skończyła
+      if (gameState.isGameOver) break;
       gameState.movePlayer(1, maxTiles);
       setV(v => v + 1); 
-      await wait(450);
+      await wait(450); // Czas trwania jednego kroku
     }
 
     if (gameState.isGameOver) {
@@ -98,7 +91,10 @@ export const useGameLogic = (mapData) => {
       return;
     }
 
-    await wait(600);
+    // --- KLUCZOWA ZMIANA ---
+    // Zwiększono oczekiwanie do 1000ms po całkowitym zatrzymaniu pionka
+    await wait(1500); 
+    
     evaluateFieldAction(mapData.path[gameState.getCurrentPlayer().currentModuleId]);
   }, [diceResult, mapData]);
 
@@ -140,7 +136,6 @@ export const useGameLogic = (mapData) => {
     setV(v => v + 1); 
     await wait(1500); 
     
-    // Sprawdzenie tury po akcji (uwzględnia czy akcja nie zakończyła gry)
     await checkTurnEnd();
   }, [activeQ]);
 

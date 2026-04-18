@@ -92,7 +92,7 @@ const fragmentShader = `
     float finalAlpha = texMask.a * intensity * noiseEdge;
 
     // Odrzucamy ciemne partie gradientu
-    if (finalAlpha < 0.05) discard;
+    if (finalAlpha < 0.04) discard;
 
     // Używamy uColor ustawionego na początku pliku
     vec3 finalColor = uColor; 

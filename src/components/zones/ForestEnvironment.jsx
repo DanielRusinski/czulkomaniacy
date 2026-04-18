@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { getZoneColors } from '../../config/materialsConfig';
+import { getZoneColors } from '../../config/materialsConfig_ss';
 import ForestGround from './ForestGround';
 import ForestGroundDetail from './ForestGroundDetail';
 import ForestLargeModels from './ForestLargeModels';
