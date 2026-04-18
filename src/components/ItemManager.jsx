@@ -1,66 +1,88 @@
-import React, { useMemo } from 'react';
-import { useGLTF, Float, Clone } from '@react-three/drei';
+import React, { useMemo, useRef } from 'react';
+import { useGLTF, useEnvironment } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { BoarderGelGlitterMaterial } from '../shaders/Boarder_GelGlitterMaterial';
 
-const CollectibleItem = ({ position, modelPath, scale }) => {
-  const { scene } = useGLTF(modelPath);
-  return (
-    <Float 
-      position={position} 
-      speed={2.5} 
-      rotationIntensity={1.5} 
-      floatIntensity={1.5} 
-      floatingRange={[0.2, 0.6]}
-    >
-      <Clone object={scene} scale={scale} castShadow />
-    </Float>
-  );
-};
-
-useGLTF.preload('/models/apple_piece.gltf');
+const tempObject = new THREE.Object3D();
 
 const ItemManager = ({ mapData, visibleTiles }) => {
-  // 1. Generujemy przedmioty stałe (co 10 pole)
-  const activeItems = useMemo(() => {
-    if (!mapData?.path) return [];
+  const { nodes } = useGLTF('/models/Items_star001.glb');
+  const meshRef = useRef();
+
+  // Pobieramy domyślną mapę otoczenia dla odbić (opcjonalnie możesz podać ścieżkę do własnej)
+  const envMap = useEnvironment({ preset: 'city' });
+
+  // 1. Wyciągamy geometrię z modelu
+  const geometry = useMemo(() => {
+    const mesh = Object.values(nodes).find(node => node.isMesh);
+    return mesh ? mesh.geometry : null;
+  }, [nodes]);
+
+  // 2. Filtrowanie i przygotowanie pozycji gwiazdek
+  const items = useMemo(() => {
+    if (!mapData?.path || !visibleTiles) return [];
     
-    const items = [];
+    const visibleTileIds = new Set(visibleTiles.map(t => String(t.id)));
     
-    mapData.path.forEach((tile, index) => {
-      // Co 10 pole, omijamy pole startowe (index 0) i pola bossów
-      if (index > 0 && index % 10 === 0 && !tile.isBoss && tile.category !== 'start-meta') {
-        items.push({
-          id: `item-${tile.id}`,
-          tileId: tile.id,
-          x: tile.x + (tile.w || 1) / 2,
-          z: tile.y + (tile.h || 1) / 2,
-          modelPath: '/models/apple_piece.gltf'
-        });
-      }
+    return mapData.path
+      .filter((tile, index) => 
+        index > 0 && 
+        index % 10 === 0 && 
+        !tile.isBoss && 
+        tile.category !== 'start-meta' &&
+        visibleTileIds.has(String(tile.id))
+      )
+      .map(tile => ({
+        id: tile.id,
+        x: tile.x + (tile.w || 1) / 2,
+        z: tile.y + (tile.h || 1) / 2,
+      }));
+  }, [mapData.path, visibleTiles]);
+
+  // 3. Animacja instancji
+  useFrame((state) => {
+    if (!meshRef.current) return;
+
+    items.forEach((item, i) => {
+      const t = state.clock.elapsedTime * 1.1;
+      const yOffset = 1.2 + Math.sin(t + i) * 0.2;
+      
+      tempObject.position.set(item.x, yOffset, item.z);
+      tempObject.rotation.y = t * 0.5;
+      tempObject.scale.setScalar(0.7);
+      tempObject.updateMatrix();
+      
+      meshRef.current.setMatrixAt(i, tempObject.matrix);
     });
     
-    return items;
-  }, [mapData.path]);
+    meshRef.current.instanceMatrix.needsUpdate = true;
+  });
 
-  // 2. Ograniczamy renderowanie tylko do tych przedmiotów, które są w widocznej strefie
-  const visibleItems = useMemo(() => {
-    if (!visibleTiles) return activeItems; // Fallback
-    const visibleTileIds = new Set(visibleTiles.map(t => String(t.id)));
-    return activeItems.filter(item => visibleTileIds.has(String(item.tileId)));
-  }, [activeItems, visibleTiles]);
+  if (!geometry) return null;
 
   return (
-    <group name="item-manager">
-      {visibleItems.map((item) => (
-        <CollectibleItem 
-          key={item.id} 
-          position={[item.x, 0.8, item.z]} // Podniesiono wysokość startową (0.8 - poziom pionka)
-          modelPath={item.modelPath} 
-          scale={1.5} // ZWIEKSZ TEN PARAMETR (np. do 10 lub 50) jeśli model jest nadal mikroskopijny
-        />
-      ))}
-    </group>
+    <instancedMesh 
+      ref={meshRef} 
+      args={[geometry, null, items.length]} 
+      castShadow
+    >
+      <BoarderGelGlitterMaterial 
+        uEnv={envMap}
+        uColorTop="#ffffff"
+        uColorMid="#e65400"
+        uColorBot="#00ffaa"
+        uGradientStretch={20.0}
+        uGlitterDensity={50.0}
+        uGlitterSize={0.2}
+        uRefractionRatio={1.6}
+        uGlassThickness={0.6}
+        uEnvReflection={0.5}
+      />
+    </instancedMesh>
   );
 };
+
+useGLTF.preload('/models/Items_star001.glb');
 
 export default ItemManager;

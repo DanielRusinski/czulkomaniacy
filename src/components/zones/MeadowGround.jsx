@@ -4,32 +4,32 @@ import { useGLTF } from '@react-three/drei';
 
 // --- KONFIGURACJA ELEMENTU ---
 const CONFIG = {
-  modelPath: '/models/meadow_groundA.glb',
-  basePlane: 0.02,      // Wysokość, na której ląduje kafel
+  modelPath: '/models/Ground_base001.glb',
+  basePlane: -0.55,      // Wysokość, na której ląduje kafel
   scale: 1.0,           // Skala modelu
-  instancesNo: 150      // Bufor dla matrycy 8x11 (88 pól)
+  instancesNo: 150      // Bufor dla matrycy 8x11
 };
 
 /**
- * MeadowGround - Skrypt odpowiedzialny za bazowe kafle podłoża w strefie Meadow.
- * Wypełnia obszar 8x11, omijając kafelki ścieżki (gameTiles).
+ * MeadowGround - Zoptymalizowany manager instancji podłoża.
+ * Rozmieszcza kafle na siatce 8x11, pomijając ścieżkę gracza.
+ * Wersja zredukowana: brak modyfikacji materiałów, używamy surowego GLB.
  */
-const MeadowGround = ({ mapData, activePlayer }) => {
+const MeadowGround = ({ mapData }) => {
   const groupRef = useRef();
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
   // 1. Ładowanie modelu podłoża
   const { scene } = useGLTF(CONFIG.modelPath);
   
-  // 2. Przygotowanie geometrii i materiałów
+  // 2. Pobranie geometrii i oryginalnych materiałów z modelu (bez klonowania)
   const meshesData = useMemo(() => {
     const parts = [];
     if (scene) {
       scene.traverse((child) => {
         if (child.isMesh) {
-          const material = child.material.clone();
-          material.roughness = 0.85; // Optymalizacja pod cienie
-          parts.push({ geometry: child.geometry, material: material });
+          // Pobieramy materiał dokładnie taki, jaki wyszedł z blendera/programu 3D
+          parts.push({ geometry: child.geometry, material: child.material });
         }
       });
     }
@@ -48,27 +48,27 @@ const MeadowGround = ({ mapData, activePlayer }) => {
       minZ = Math.min(minZ, t.y);
     });
 
-    // Skorygowano granice, aby pasowały do matrycy 8x11 używanej w innych komponentach
     return { 
       startX: minX - 1, 
-      endX: minX + 7,   // minX-1 + 8 kolumn
+      endX: minX + 7,   
       startZ: minZ - 1, 
-      endZ: minZ + 10   // minZ-1 + 11 rzędów
+      endZ: minZ + 10   
     };
   }, [mapData]);
 
-  // 4. Rozmieszczanie instancji (Logika "Empty Spaces")
+  // 4. Rozmieszczanie instancji
   useLayoutEffect(() => {
     if (!groupRef.current || !zoneInfo || meshesData.length === 0) return;
 
     const pathSet = new Set(mapData.path.map(t => `${t.x},${t.y}`));
     const transforms = [];
 
-    // Iteracja po poprawionej matrycy 8x11
+    // Iteracja po matrycy 8x11
     for (let x = zoneInfo.startX; x < zoneInfo.endX; x++) {
       for (let z = zoneInfo.startZ; z < zoneInfo.endZ; z++) {
         // Jeśli pole NIE jest częścią ścieżki gracza, kładziemy tam grunt
         if (!pathSet.has(`${x},${z}`)) {
+          // Pozycja i skala
           dummy.position.set(x + 0.5, CONFIG.basePlane, z + 0.5);
           dummy.scale.setScalar(CONFIG.scale);
           dummy.updateMatrix();
@@ -77,10 +77,7 @@ const MeadowGround = ({ mapData, activePlayer }) => {
       }
     }
 
-    // Diagnostyka: Sprawdzenie ilości utworzonych kafli w konsoli
-    console.log(`[MeadowGround] Wygenerowano ${transforms.length} kafli gruntu.`);
-
-    // Aplikacja macierzy do instancji
+    // Aplikacja macierzy do wszystkich instancji
     groupRef.current.children.forEach((instancedMesh) => {
       if (!instancedMesh.isInstancedMesh) return;
       

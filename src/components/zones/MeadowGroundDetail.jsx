@@ -1,22 +1,36 @@
 import React, { useMemo, useRef, useLayoutEffect } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
 // --- [1] KONFIGURACJA ---
 const SMALL_MODELS_CONFIG = [
-  { path: '/models/placeholder.glb', basePlane: 0.40, scale: 0.55, instancesNo: 40 },
-  { path: '/models/placeholder.glb', basePlane: 0.40, scale: 0.77, instancesNo: 15 }
+  { path: '/models/placeholder.glb', basePlane: 1.40, scale: 0.55, instancesNo: 4 },
+  { path: '/models/placeholder.glb', basePlane: 1.40, scale: 0.77, instancesNo: 1 }
 ];
 
-const SHADER_CONFIG = {
+// Generuje unikalne ziarno (seed) przy każdym uruchomieniu gry
+const GLOBAL_SEED = Math.random() * 10000.0;
+
+// Konfiguracja trawy 
+const GRASS_CONFIG = {
   grassCount: 30000, 
-  bladeWidth: 0.06,  // Średnica tuby
-  bladeHeight: 0.33,  // Wysokość części cylindrycznej
+  bladeWidth: 0.06,   
+  bladeHeight: 0.33,  
   basePlane: 0.4, 
+  aoMaxDistance: 25.0,
+  
+  // -- Parametry wizualne i zachowanie --
+  colorBottom: '#ff0066', // Kolor cienia/dołu
+  colorTop: '#7affd9',    // Kolor wierzchołków
+  colorShadow: '#9900ff', // <-- NOWY PARAMETR: Kolor głębokiego cienia (AO)//// #0EE1D3
+  windSpeed: 0.4,         // Jak szybko fale wiatru przemieszczają się po trawie
+  windStrength: 0.4,      // Jak mocno trawa kładzie się na wietrze
+  noiseScale: 0.75,       // Skala plam kolorystycznych
+  gradientPower: 0.6      // Krzywa gradientu (1.0 = liniowo, >1.0 = więcej ciemnego dołu, <1.0 = więcej jasnej góry)
 };
 
-// --- [2] SHADERY Z OBSŁUGĄ MGŁY ---
+// --- [2] SHADERY Z OBSŁUGĄ MGŁY I ODLEGŁOŚCIOWEGO AO ---
 const vertexShader = `
   #include <common>
   #include <fog_pars_vertex>
@@ -24,10 +38,18 @@ const vertexShader = `
   varying vec2 vUv;
   varying float vNoise;
   varying vec3 vWorldPos;
+  varying vec3 vNormal;
+  varying float vDistance; 
+
   uniform float uTime;
   uniform float uBaseH;
+  uniform float uSeed;
+  uniform float uWindSpeed;
+  uniform float uWindStrength;
+  uniform vec3 uCameraPosition; 
 
   float hash(vec2 p) {
+    p += uSeed;
     p = fract(p * vec2(123.34, 456.21));
     p += dot(p, p + 45.32);
     return fract(p.x * p.y);
@@ -46,23 +68,24 @@ const vertexShader = `
 
   void main() {
     vUv = uv;
+    vNormal = normalize(normalMatrix * normal);
     
-    // Obliczanie pozycji instancji
     vec4 instancePos = instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
     vec4 worldBasePos = modelMatrix * instancePos;
     vWorldPos = worldBasePos.xyz;
+
+    vDistance = length(uCameraPosition - worldBasePos.xyz);
     
-    // Efekt wiatru (wygięcie)
-    float windNoise = noise(worldBasePos.xz * 0.4 + uTime * 0.4);
+    // Efekt wiatru
+    float windNoise = noise(worldBasePos.xz * uWindSpeed + uTime * uWindSpeed);
     vNoise = windNoise;
     float wave = pow(uv.y, 2.0) * windNoise;
     
     vec3 pos = position;
-    pos.x += wave * 0.4;
-    pos.z += wave * 0.3;
+    pos.x += wave * uWindStrength;
+    pos.z += wave * (uWindStrength * 0.75); 
     pos.y += uBaseH;
     
-    // Standardowe transformacje dla mgły i projekcji
     vec4 mvPosition = modelViewMatrix * instanceMatrix * vec4(pos, 1.0);
     gl_Position = projectionMatrix * mvPosition;
 
@@ -77,15 +100,24 @@ const fragmentShader = `
   varying vec2 vUv;
   varying float vNoise;
   varying vec3 vWorldPos;
-  uniform vec3 uZoneColor;
+  varying vec3 vNormal;
+  varying float vDistance; 
+
+  uniform vec3 uColorBottom;
+  uniform vec3 uColorTop;
+  uniform vec3 uColorShadow; // <-- Dodany uniform cienia
+  uniform float uSeed;
+  uniform float uNoiseScale;
+  uniform float uGradientPower;
+  uniform float uAoMaxDistance; 
 
   float hash(vec2 p) {
+    p += uSeed;
     p = fract(p * vec2(123.34, 456.21));
     p += dot(p, p + 45.32);
     return fract(p.x * p.y);
   }
 
-  // Ulepszony szum 2D dla łagodniejszych przejść
   float noise(vec2 p) {
     vec2 i = floor(p);
     vec2 f = fract(p);
@@ -98,20 +130,28 @@ const fragmentShader = `
   }
   
   void main() {
-    // Zmniejszony mnożnik (0.15) sprawia, że przejścia kolorów są dłuższe i szersze
-    float noiseValue = noise(vWorldPos.xz * 0.75);
+    float noiseValue = noise(vWorldPos.xz * uNoiseScale);
     
-    // Kolory stref
-    vec3 colorYellow = vec3(1.0, 0.0, 0.4); 
-    vec3 colorNeon = uZoneColor * 2.5;    
-
-    // Smoothstep ustawiony na pełny zakres (0.0 - 1.0) dla maksymalnej miękkości gradientu
     float mixFactor = smoothstep(0.0, 1.0, noiseValue);
-    vec3 baseZoneColor = mix(colorYellow, colorNeon, mixFactor);
+    vec3 baseZoneColor = mix(uColorBottom, uColorTop, mixFactor);
     
-    // Gradient pionowy (użycie pow(vUv.y, 0.8) dla ładniejszego rozkładu cienia u dołu)
-    float verticalGrad = pow(vUv.y, 0.8);
-    vec3 finalColor = mix(baseZoneColor * 0.1, baseZoneColor * (1.1 + vNoise * 0.3), verticalGrad);
+    float verticalGrad = pow(vUv.y, uGradientPower);
+    
+    // --- [ODLEGŁOŚCIOWE AO (Ambient Occlusion)] ---
+    float aoIntensity = 1.0 - smoothstep(0.0, uAoMaxDistance, vDistance);
+    
+    // Głęboki cień to teraz dedykowany kolor uColorShadow z konfiguracji
+    vec3 deepShadow = uColorShadow;
+    
+    // Płytki cień (dalej od kamery) to mieszanka koloru strefy i koloru cienia
+    vec3 softShadow = mix(baseZoneColor, uColorShadow, 0.4);
+    
+    // Im bliżej kamery, tym ciemniejszy, dedykowany cień u podstawy trawy
+    vec3 darkBottom = mix(softShadow, deepShadow, aoIntensity);
+    
+    vec3 lightTop = baseZoneColor * (1.15 + vNoise * 0.2);
+    
+    vec3 finalColor = mix(darkBottom, lightTop, verticalGrad);
     
     gl_FragColor = vec4(finalColor, 1.0);
 
@@ -119,7 +159,8 @@ const fragmentShader = `
   }
 `;
 
-const MeadowGroundDetail = ({ mapData, zoneColor }) => {
+const MeadowGroundDetail = ({ mapData }) => {
+  const { camera } = useThree(); 
   const grassRef = useRef();
   const modelsRef = useRef([]);
   const dummy = useMemo(() => new THREE.Object3D(), []);
@@ -164,7 +205,7 @@ const MeadowGroundDetail = ({ mapData, zoneColor }) => {
 
     // --- Trawa ---
     if (grassRef.current) {
-      for (let i = 0; i < SHADER_CONFIG.grassCount; i++) {
+      for (let i = 0; i < GRASS_CONFIG.grassCount; i++) {
         const lx = (Math.random() - 0.5) * zoneInfo.sizeX;
         const lz = (Math.random() - 0.5) * zoneInfo.sizeZ;
         const wx = lx + zoneInfo.startX + zoneInfo.sizeX / 2;
@@ -187,14 +228,16 @@ const MeadowGroundDetail = ({ mapData, zoneColor }) => {
 
   useFrame((state) => {
     if (grassRef.current) {
-      grassRef.current.material.uniforms.uTime.value = state.clock.getElapsedTime();
+      const uniforms = grassRef.current.material.uniforms;
+      uniforms.uTime.value = state.clock.getElapsedTime();
+      uniforms.uCameraPosition.value.copy(state.camera.position);
     }
   });
 
   const grassGeometry = useMemo(() => {
-    const radius = SHADER_CONFIG.bladeWidth / 2;
-    const geo = new THREE.CapsuleGeometry(radius, SHADER_CONFIG.bladeHeight, 3, 6);
-    const totalHeight = SHADER_CONFIG.bladeHeight + 2 * radius;
+    const radius = GRASS_CONFIG.bladeWidth / 2;
+    const geo = new THREE.CapsuleGeometry(radius, GRASS_CONFIG.bladeHeight, 3, 6);
+    const totalHeight = GRASS_CONFIG.bladeHeight + 2 * radius;
     geo.translate(0, totalHeight / 2, 0);
     return geo;
   }, []);
@@ -203,14 +246,24 @@ const MeadowGroundDetail = ({ mapData, zoneColor }) => {
     uniforms: {
       ...THREE.UniformsLib.fog,
       uTime: { value: 0 },
-      uZoneColor: { value: new THREE.Color(zoneColor) },
-      uBaseH: { value: SHADER_CONFIG.basePlane }
+      uBaseH: { value: GRASS_CONFIG.basePlane },
+      uCameraPosition: { value: new THREE.Vector3() }, 
+      uAoMaxDistance: { value: GRASS_CONFIG.aoMaxDistance },
+      
+      uSeed: { value: GLOBAL_SEED },
+      uColorBottom: { value: new THREE.Color(GRASS_CONFIG.colorBottom) },
+      uColorTop: { value: new THREE.Color(GRASS_CONFIG.colorTop) },
+      uColorShadow: { value: new THREE.Color(GRASS_CONFIG.colorShadow) }, // <-- Wstrzyknięcie koloru cienia
+      uWindSpeed: { value: GRASS_CONFIG.windSpeed },
+      uWindStrength: { value: GRASS_CONFIG.windStrength },
+      uNoiseScale: { value: GRASS_CONFIG.noiseScale },
+      uGradientPower: { value: GRASS_CONFIG.gradientPower } 
     },
     vertexShader,
     fragmentShader,
     side: THREE.DoubleSide,
     fog: true 
-  }), [zoneColor]);
+  }), []);
 
   if (!zoneInfo) return null;
 
@@ -230,7 +283,7 @@ const MeadowGroundDetail = ({ mapData, zoneColor }) => {
       ))}
       <instancedMesh 
         ref={grassRef} 
-        args={[grassGeometry, grassMaterial, SHADER_CONFIG.grassCount]} 
+        args={[grassGeometry, grassMaterial, GRASS_CONFIG.grassCount]} 
         frustumCulled={false} 
       />
     </group>

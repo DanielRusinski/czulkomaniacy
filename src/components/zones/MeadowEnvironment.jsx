@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { getZoneColors } from '../../config/materialsConfig'; // Import z design systemu
+import { getZoneColors } from '../../config/materialsConfig_ss'; // Import z design systemu
 import MeadowGround from './MeadowGround';
 import MeadowGroundDetail from './MeadowGroundDetail';
 import MeadowLargeModels from './MeadowLargeModels';
