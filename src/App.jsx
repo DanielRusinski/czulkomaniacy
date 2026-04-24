@@ -11,7 +11,6 @@ import GameHUD from './components/ui/GameHUD';
 import ActiveTileHUD from './components/ui/ActiveTileHUD';
 import TurnIndicator from './components/ui/TurnIndicator';
 import ModalsLayer from './components/ModalsLayer';
-import UiTurns from './components/ui/uiTurns_ss';
 
 // Plansza 3D
 import Board3D from './components/Board3D';
@@ -27,9 +26,9 @@ import { useGameLogic, GAME_PHASES } from './hooks/useGameLogic';
 
 function App() {
   const mapData = useMemo(() => generateMap(), []);
-  const [gameStateView, setGameStateView] = useState('home'); 
+  const [gameStateView, setGameStateView] = useState('home');
   const [activeBasePlayer, setActiveBasePlayer] = useState(null);
-  
+
   const gameLogic = useGameLogic(mapData);
   const { states, actions } = gameLogic;
 
@@ -41,12 +40,12 @@ function App() {
   }, [states.v, gameStateView]);
 
   if (gameStateView === 'home') return (
-    <HomeView 
-      onStart={() => { 
+    <HomeView
+      onStart={() => {
         audioManager.play('click');
-        if (gameState.clearStorage) gameState.clearStorage(); 
-        setGameStateView('setup'); 
-      }} 
+        if (gameState.clearStorage) gameState.clearStorage();
+        setGameStateView('setup');
+      }}
       onResume={() => {
         audioManager.play('click');
         if (gameState.loadFromStorage && gameState.loadFromStorage()) {
@@ -56,7 +55,7 @@ function App() {
       }}
     />
   );
-  
+
   if (gameStateView === 'setup') return (
     <SetupView onComplete={(players) => {
       audioManager.play('click');
@@ -67,11 +66,11 @@ function App() {
   );
 
   const currentPlayer = gameState.getCurrentPlayer();
-  const controlsDisabled = 
-    states.gamePhase !== GAME_PHASES.IDLE || 
+  const controlsDisabled =
+    states.gamePhase !== GAME_PHASES.IDLE ||
     (currentPlayer && currentPlayer.movesLeft <= 0) ||
     !!states.turnNotification ||
-    !!states.deckAlert || 
+    !!states.deckAlert ||
     gameState.isGameOver;
 
   return (
@@ -79,19 +78,18 @@ function App() {
       {/* Licznik FPS - renderuje się globalnie */}
       <FpsStats />
 
-      <UiTurns />
-      <TurnIndicator activePlayer={currentPlayer} />
 
-      <Board3D 
-        mapData={mapData} 
-        activePlayer={currentPlayer} 
+
+      <Board3D
+        mapData={mapData}
+        activePlayer={currentPlayer}
         onPlayerMoveComplete={actions.handleMoveComplete}
-        v={states.v} 
+        v={states.v}
       />
 
       <AnimatePresence>
         {states.turnNotification && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.85, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 1.1, transition: { duration: 0.3 } }}
@@ -117,24 +115,24 @@ function App() {
         )}
       </AnimatePresence>
 
-      <ActiveTileHUD 
-        activePlayer={currentPlayer} 
-        mapPath={mapData.path} 
+      <ActiveTileHUD
+        activePlayer={currentPlayer}
+        mapPath={mapData.path}
         onRollDice={actions.roll}
-        diceState={{ 
-          isRolling: states.isDiceRolling, 
-          isViewing: states.isViewingDice, 
-          targetValue: states.diceResult 
+        diceState={{
+          isRolling: states.isDiceRolling,
+          isViewing: states.isViewingDice,
+          targetValue: states.diceResult
         }}
         disabledControls={controlsDisabled}
       />
-      
+
       <div className="absolute inset-0 z-10 p-8 flex flex-col lg:flex-row gap-10 items-start pointer-events-none">
-        <GameHUD 
-          onOpenBase={(p) => { 
+        <GameHUD
+          onOpenBase={(p) => {
             audioManager.play('click');
-            setActiveBasePlayer(p); 
-            setGameStateView('base'); 
+            setActiveBasePlayer(p);
+            setGameStateView('base');
           }}
           onOpenSettings={() => {
             audioManager.play('click');
@@ -143,11 +141,11 @@ function App() {
         />
       </div>
 
-      <ModalsLayer 
-        gameStateView={gameStateView} 
-        setGameStateView={setGameStateView} 
-        activeBasePlayer={activeBasePlayer} 
-        logic={gameLogic} 
+      <ModalsLayer
+        gameStateView={gameStateView}
+        setGameStateView={setGameStateView}
+        activeBasePlayer={activeBasePlayer}
+        logic={gameLogic}
       />
     </div>
   );

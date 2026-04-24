@@ -83,6 +83,4 @@ const ItemManager = ({ mapData, visibleTiles }) => {
   );
 };
 
-useGLTF.preload('/models/Items_star001.glb');
-
 export default ItemManager;

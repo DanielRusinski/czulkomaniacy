@@ -108,5 +108,4 @@ const MeadowBoundary = ({ mapData }) => {
 };
 
 useGLTF.preload(CONFIG.modelPath);
-
 export default MeadowBoundary;

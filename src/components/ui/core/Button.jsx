@@ -1,31 +1,35 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-// Wychodzimy z core (..), wychodzimy z ui (..), wychodzimy z components (..) i wchodzimy do logic
 import { audioManager } from '../../../logic/audioManager';
 
 const Button = ({ 
   children, 
   onClick, 
-  variant = 'pink', 
+  variant = 'blue', 
   size = 'md', 
   className = '', 
   disabled = false 
 }) => {
-  
-  // Warianty Neobrutalistyczne
+
   const variants = {
-    pink: 'bg-bubblegum-pink text-black border-black',
-    blue: 'bg-bubblegum-blue text-black border-black',
-    green: 'bg-bubblegum-green text-black border-black',
-    yellow: 'bg-bubblegum-yellow text-black border-black',
-    ghost: 'bg-white text-gray-500 border-black',
+    blue: {
+      bg: 'linear-gradient(135deg, color-mix(in srgb, #38bdf8 90%, transparent), color-mix(in srgb, #34d399 75%, transparent))',
+      depth: '#0284c7',
+      reflection: 'radial-gradient(circle at 30% 25%, rgba(255,255,255,.40), rgba(255,255,255,.05) 60%)'
+    },
+    rose: {
+      bg: 'linear-gradient(135deg, color-mix(in srgb, #fb7185 85%, transparent), color-mix(in srgb, #fbbf24 75%, transparent))',
+      depth: '#be123c',
+      reflection: 'radial-gradient(circle at 30% 25%, rgba(255,255,255,.35), rgba(255,255,255,.05) 60%)'
+    }
   };
 
-  // Rozmiary z grubym obramowaniem i specyficznym cieniem
+  const selectedVariant = variants[variant] || variants.blue;
+
   const sizes = {
-    sm: 'px-4 py-2 text-xs rounded-lg border-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]',
-    md: 'px-6 py-3 text-sm rounded-xl border-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]',
-    lg: 'px-10 py-5 text-xl rounded-2xl border-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]',
+    sm: 'w-[38px] h-[38px] rounded-[14px]',
+    md: 'px-6 py-3 min-w-[120px] rounded-[14px]',
+    lg: 'w-[180px] h-[48px] rounded-[14px]', // Odpowiednik klasy .pill
   };
 
   const handleMouseEnter = () => {
@@ -36,31 +40,51 @@ const Button = ({
 
   const handleClick = (e) => {
     if (!disabled) {
-      audioManager.play('click'); // Dźwięk kliknięcia
+      audioManager.play('click');
       if (onClick) onClick(e);
     }
   };
 
+  const shadowNormal = `
+    0 1px 0 ${selectedVariant.depth},
+    0 2px 0 ${selectedVariant.depth},
+    0 3px 0 ${selectedVariant.depth},
+    0 4px 0 ${selectedVariant.depth},
+    0 5px 0 ${selectedVariant.depth},
+    0 6px 0 ${selectedVariant.depth},
+    0 12px 15px rgba(0, 0, 0, 0.4)
+  `;
+
+  const shadowActive = `
+    0 1px 0 ${selectedVariant.depth},
+    0 2px 0 ${selectedVariant.depth},
+    0 2px 0 ${selectedVariant.depth},
+    0 2px 0 ${selectedVariant.depth},
+    0 2px 0 ${selectedVariant.depth},
+    0 2px 0 ${selectedVariant.depth},
+    0 5px 8px rgba(0, 0, 0, 0.4)
+  `;
+
   return (
     <motion.button
-      // Efekt uniesienia (hover) i wciśnięcia (tap)
-      whileHover={!disabled ? { 
-        y: -2, 
-        x: -2, 
-        boxShadow: size === 'lg' ? "8px 8px 0px 0px #000" : "6px 6px 0px 0px #000" 
-      } : {}}
+      whileHover={!disabled ? { scale: 1.02 } : {}}
       whileTap={!disabled ? { 
-        y: 2, 
-        x: 2, 
-        boxShadow: "0px 0px 0px 0px #000" 
+        y: 4, 
+        boxShadow: shadowActive 
       } : {}}
       onMouseEnter={handleMouseEnter}
       onClick={handleClick}
+      style={{
+        backgroundImage: `${selectedVariant.reflection}, ${selectedVariant.bg}`,
+        boxShadow: shadowNormal,
+        backgroundSize: 'calc(100% + 2px) calc(100% + 2px)',
+        backgroundPosition: 'center',
+      }}
       className={`
-        ${variants[variant]} 
         ${sizes[size]} 
-        font-bold uppercase tracking-wider transition-all
-        ${disabled ? 'opacity-40 cursor-not-allowed grayscale shadow-none' : 'cursor-pointer'}
+        relative z-[2] border border-white/15 outline-none
+        font-bold uppercase tracking-wider text-white transition-transform
+        ${disabled ? 'opacity-40 cursor-not-allowed grayscale' : 'cursor-pointer'}
         ${className}
         inline-flex items-center justify-center gap-2
       `}

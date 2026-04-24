@@ -7,7 +7,6 @@ import styles from './OverlayUI.module.css';
 import GameHUD from './GameHUD';
 import ActiveTileHUD from './ActiveTileHUD';
 import TurnIndicator from './TurnIndicator';
-import UiTurns from './uiTurns_ss';
 import ModalsLayer from '../ModalsLayer';
 
 export default function OverlayUI() {

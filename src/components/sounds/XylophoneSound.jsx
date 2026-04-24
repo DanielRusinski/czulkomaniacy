@@ -1,49 +1,49 @@
 import React, { useCallback, useRef } from 'react';
 
 /**
- * Główna funkcja generująca dźwięk.
- * Wyodrębniona, aby AudioManager mógł z niej korzystać w pętli useFrame.
+ * Główna funkcja generująca dźwięk ksylofonu.
  */
 export const playXylophoneStep = (audioCtx, reverbNode) => {
-  // 1. Zabezpieczenie przed niezaładowanym kontekstem
   if (!audioCtx || audioCtx.state === 'closed' || !reverbNode) {
     console.warn("🔇 Ksylofon: Brak AudioContext lub ReverbNode.");
     return;
   }
 
-  // 2. Próba wybudzenia kontekstu (na wypadek uśpienia przez przeglądarkę)
   if (audioCtx.state === 'suspended') {
     audioCtx.resume();
   }
 
-  // 3. Skala i losowanie
-  const scale = [410, 490, 570, 650, 730];
+  // Harmonijna skala Pentatoniczna C-dur (C5 - A5)
+  // Częstotliwości: C5, D5, E5, G5, A5
+  const scale = [523.25, 587.33, 659.25, 783.99, 880.00];
   const randomIndex = Math.floor(Math.random() * scale.length);
   const selectedFreq = scale[randomIndex];
-
-  // LOG DLA DEBUGOWANIA - zobaczysz to w konsoli F12
-  console.log(`🎹 Ksylofon gra: ${selectedFreq}Hz`);
 
   const oscillator = audioCtx.createOscillator();
   const gainNode = audioCtx.createGain();
 
-  // 4. Parametry brzmienia
-  oscillator.type = 'triangle'; // triangle = drewniane brzmienie
+  // 'triangle' jest świetny, ale 'sine' z szybkim atakiem jeszcze bardziej przypomina czysty ksylofon
+  oscillator.type = 'triangle'; 
   oscillator.frequency.setValueAtTime(selectedFreq, audioCtx.currentTime);
 
-  // 5. Obwiednia (Atak -> Zanikanie)
+  // Detune dodaje naturalności (lekki losowy "rozstroj")
+  oscillator.detune.setValueAtTime(Math.random() * 10 - 5, audioCtx.currentTime);
+
+  // Obwiednia (ADSR)
   gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-  gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.005);
-  gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+  // Szybki atak
+  gainNode.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + 0.005);
+  // Dłuższe, naturalne wygasanie (Ksylofon drewniany)
+  gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
 
-  // 6. Routing (Połączenia)
   oscillator.connect(gainNode);
-  gainNode.connect(reverbNode); // Efekt pogłosu
-  gainNode.connect(audioCtx.destination); // Czysty sygnał (dry)
+  
+  // Połączenie równoległe (Dry/Wet)
+  gainNode.connect(audioCtx.destination); // Sygnał czysty
+  gainNode.connect(reverbNode);           // Sygnał z pogłosem
 
-  // 7. Start i Stop
   oscillator.start();
-  oscillator.stop(audioCtx.currentTime + 0.5);
+  oscillator.stop(audioCtx.currentTime + 0.7);
 
   return selectedFreq;
 };
@@ -52,14 +52,12 @@ const XylophoneSound = ({ children }) => {
   const audioCtx = useRef(null);
   const reverbNode = useRef(null);
 
-  /**
-   * Inicjalizacja wewnętrzna dla komponentu (np. przy kliknięciu w "PLAY")
-   */
   const setupInternalAudio = () => {
     if (!audioCtx.current) {
       const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
       audioCtx.current = new AudioCtxClass();
       
+      // Tworzenie pogłosu
       reverbNode.current = audioCtx.current.createConvolver();
       const length = audioCtx.current.sampleRate * 1.5;
       const impulse = audioCtx.current.createBuffer(2, length, audioCtx.current.sampleRate);
@@ -71,7 +69,12 @@ const XylophoneSound = ({ children }) => {
         }
       }
       reverbNode.current.buffer = impulse;
-      reverbNode.current.connect(audioCtx.current.destination);
+      
+      // Gain dla samego pogłosu, aby nie zdominował dźwięku
+      const reverbGain = audioCtx.current.createGain();
+      reverbGain.gain.value = 0.3; 
+      reverbNode.current.connect(reverbGain);
+      reverbGain.connect(audioCtx.current.destination);
     }
 
     if (audioCtx.current.state === 'suspended') {
@@ -88,7 +91,6 @@ const XylophoneSound = ({ children }) => {
     <div 
       onClick={handlePlay} 
       style={{ display: 'inline-block', cursor: 'pointer' }}
-      title="Kliknij, aby przetestować dźwięk ksylofonu"
     >
       {children || "Testuj Ksylofon"}
     </div>
